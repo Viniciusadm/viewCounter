@@ -1,6 +1,6 @@
 <?PHP
 
-$dadosJSON = file_get_contents('https://www.googleapis.com/youtube/v3/videos?id=IHNzOHi8sJs&key=AIzaSyBRJ3773xt2m4h5WJjg4u_bgbSNua0psvk&fields=items(snippet(title,thumbnails(maxres(url))),statistics(viewCount))&part=snippet,statistics');
+$dadosJSON = file_get_contents('https://www.googleapis.com/youtube/v3/videos?id=IHNzOHi8sJs&key=&fields=items(snippet(title,thumbnails(maxres(url))),statistics(viewCount))&part=snippet,statistics');
 $dadosJSONDecodificados = json_decode($dadosJSON);
 
 ?>
