@@ -1,0 +1,28 @@
+.tituloMusicas {
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.musica {
+    border: 0.4em solid #fa7294;
+}
+
+.capa {
+    max-width: 350px;
+}
+
+.album {
+    font-weight: bold;
+}
+
+.ano {
+    font-weight: bold;
+}
+
+.compositores {
+    font-weight: bold;
+}
+
+.premio {
+    font-weight: bold;
+}

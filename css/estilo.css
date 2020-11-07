@@ -10,3 +10,13 @@
     background-color: #f799b1;
     color: white;
 }
+
+@media (min-width: 575px) {
+    .cabecalho {
+        margin-top: 1em;
+    }
+
+    .principal {
+        margin-bottom: 1em;
+    }
+}
