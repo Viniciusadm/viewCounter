@@ -1,13 +1,15 @@
-const key = 'AIzaSyBJ77lJ443xyt0aF0Opxq0PjIrz4P3jnoAa'
+const key = 'AIzaSyDdC1FKo0jddDNkp8Pycqk2OD1Pk-sf-WQ'
 const idPlaylist = 'PLqSz0ak5p5kWs6ry0vo-aO2RRc1maiq2h'
+// PLHz_AreHm4dkZ9-atkcmcBaMZdmLHft8n
 
 const url1 = 'https://www.googleapis.com/youtube/v3/videos?id='
-const url2 = '&key=' + key + '&fields=items(snippet(title),statistics(viewCount))&part=snippet,statistics'
+const url2 = '&key=' + key + '&fields=items(snippet(title,publishedAt),statistics(viewCount,likeCount))&part=snippet,statistics'
 
 async function getContent() {
 
     const response = await fetch('https://www.googleapis.com/youtube/v3/playlistItems?playlistId=' + idPlaylist + '&key=' + key + '&fields=items(contentDetails(videoId))&part=contentDetails&maxResults=50')
     const playlist = await response.json()
+
     var conteudo = ''
     let videosIds = []
 
@@ -48,16 +50,32 @@ async function getContent() {
 
         let nomeVideo = nomeLista.join('')
 
-        if (nomeVideo === 'How You Like That DANCE PERFORMANCE V') {
-            nomeVideo = 'How You Like That DANCE'
-        }
-
         let urlImagem = `https://i.ytimg.com/vi/${id}/sddefault.jpg`
         let views = videoDetalhes.items[0].statistics.viewCount
+        let viewsTipoNumero = Number(views)
+        let dataVideoAtual = new Date(videoDetalhes.items[0].snippet.publishedAt)
+        let hoje = new Date();
+        
+        if (nomeVideo === 'Lovesick Girls' || nomeVideo === 'Ice Cream (with Selena Gomez)') {
+            var diasPassados = (hoje - dataVideoAtual - 86400000) / 86400000
+        } else {
+            var diasPassados = (hoje - dataVideoAtual) / 86400000
+        }
 
+        if (diasPassados < 1) {
+            diasPassados = 1
+        }
+
+        if (nomeVideo === 'Lovesick Girls') {
+            var viewsPorDia = Math.trunc((views - 58420000) / Math.trunc(diasPassados))
+        } else if (nomeVideo === 'Ice Cream (with Selena Gomez)') {
+            var viewsPorDia = Math.trunc((views - 76000000) / Math.trunc(diasPassados))
+        } else {
+            var viewsPorDia = Math.trunc(views / Math.trunc(diasPassados))
+        }
+        
         let viewsLista = views.split('').reverse()
-
-        numeroComPontos = []
+        let numeroComPontos = []
 
         viewsLista.forEach((valor, index) => {
             if (index % 3 === 0 && index !== 0) {
@@ -67,14 +85,51 @@ async function getContent() {
             }
         })
 
-        viewsNumero = numeroComPontos.reverse().join('')
+        let viewsNumero = numeroComPontos.reverse().join('')
+
+        if (viewsTipoNumero > 1000000000) {
+            viewsQueFaltam = viewsTipoNumero - 1000000000
+        } else {
+            viewsQueFaltam = viewsTipoNumero
+        }
+
+        let milhar
+
+        if (String(viewsQueFaltam).length === 8) {
+            milhar = 100000000
+        } else {
+            milhar = Number(String(viewsQueFaltam)[0]) * 100000000 + 100000000
+        }
+
+        viewsQueFaltam = milhar - viewsQueFaltam
+
+        if (viewsTipoNumero > 1000000000) {
+            milhar += 1000000000
+        }
+
+        let milharLista = String(milhar).split('').reverse()
+        let milharComPontos = []
+
+        milharLista.forEach((valor, index) => {
+            if (index % 3 === 0 && index !== 0) {
+                milharComPontos.push('.', valor)
+            } else {
+                milharComPontos.push(valor)
+            }
+        })
+
+        let milharNumero = milharComPontos.reverse().join('')
+
+        let diasQueFaltam = Math.ceil(viewsQueFaltam / viewsPorDia)
 
         listaDeVideos.push({
             urlImagem,
             nomeVideo,
-            views,
             viewsNumero,
-            id
+            id,
+            diasQueFaltam,
+            milharNumero,
+            viewsPorDia
         })
     }
 
@@ -90,7 +145,8 @@ async function getContent() {
             <div class="video p-2 col-12 col-sm-6 col-md-4">
             <a href="https://www.youtube.com/watch?v=${video.id}" target="_blank"><img class="img-fluid" src="${video.urlImagem}"></a>
             <h1 class="py-2 mt-2 mb-0 tituloMusicas"><span class="primeiro">${contador}°</span> ${video.nomeVideo}</h1>
-            <p class="lead"><span class="bordaVisualizacoes">${video.viewsNumero}</span> visualizações</p>
+            <p class="lead visualizacoes"><span class="bordaVisualizacoes">${video.viewsNumero}</span> visualizações</p>
+            <p class="lead"><span class="numero">${video.diasQueFaltam}</span> dia(s) pra chegar em ${video.milharNumero} visualizações</p>
             </div>`
 
             contador++
@@ -100,7 +156,8 @@ async function getContent() {
                 `<div class="video p-2 col-12 col-sm-6 col-md-4">
             <a href="https://www.youtube.com/watch?v=${video.id}" target="_blank"><img class="img-fluid" src="${video.urlImagem}"></a>
             <h1 class="py-2 mt-2 mb-0 tituloMusicas"><span class="segundo">${contador}°</span> ${video.nomeVideo}</h1>
-            <p class="lead"><span class="bordaVisualizacoes">${video.viewsNumero}</span> visualizações</p>
+            <p class="lead visualizacoes"><span class="bordaVisualizacoes">${video.viewsNumero}</span> visualizações</p>
+            <p class="lead"><span class="numero">${video.diasQueFaltam}</span> dia(s) pra chegar em ${video.milharNumero} visualizações</p>
             </div>`
 
             contador++
@@ -109,7 +166,8 @@ async function getContent() {
                 `<div class="video p-2 col-12 col-sm-6 col-md-4">
             <a href="https://www.youtube.com/watch?v=${video.id}" target="_blank"><img class="img-fluid" src="${video.urlImagem}"></a>
             <h1 class="py-2 mt-2 mb-0 tituloMusicas"><span class="terceiro">${contador}°</span> ${video.nomeVideo}</h1>
-            <p class="lead"><span class="bordaVisualizacoes">${video.viewsNumero}</span> visualizações</p>
+            <p class="lead visualizacoes"><span class="bordaVisualizacoes">${video.viewsNumero}</span> visualizações</p>
+            <p class="lead"><span class="numero">${video.diasQueFaltam}</span> dia(s) pra chegar em ${video.milharNumero} visualizações</p>
             </div>
             </div>`
 
@@ -125,7 +183,8 @@ async function getContent() {
                 `<div class="video p-2 col-12 col-sm-6 col-md-4">
                 <a href="https://www.youtube.com/watch?v=${video.id}" target="_blank"><img class="img-fluid" src="${video.urlImagem}"></a>
                 <h1 class="py-2 mt-2 mb-0 tituloMusicas">${contador}° ${video.nomeVideo}</h1>
-                <p class="lead"><span class="bordaVisualizacoes">${video.viewsNumero}</span> visualizações</p>
+                <p class="lead visualizacoes"><span class="bordaVisualizacoes">${video.viewsNumero}</span> visualizações</p>
+                <p class="lead"><span class="numero">${video.diasQueFaltam}</span> dia(s) pra chegar em ${video.milharNumero} visualizações</p>
                 </div>`
 
             if (contador === numeroLinha2) {
@@ -137,6 +196,5 @@ async function getContent() {
     }
     document.querySelector('main').innerHTML = conteudo
 }
-
 
 getContent()
